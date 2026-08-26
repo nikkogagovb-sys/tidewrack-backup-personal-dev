@@ -39,6 +39,32 @@
   "lamp_lit": {
     "speaker": "",
     "text": "The flame catches low, then gathers. Light turns once through the lens and lays a pale road across the fog.",
+    "next": "edith_vane"
+  },
+  "edith_vane": {
+    "speaker": "Edith Vane",
+    "text": "I spent my final nights in the lamp room, listening for—",
+    "audio": "audio/vo/keeper_lamp_012_take1.wav",
+    "next": "answering_flash_one"
+  },
+  "answering_flash_one": {
+    "speaker": "",
+    "text": "One answering flash blinks from far out in the fog.",
+    "next": "answering_flash_two"
+  },
+  "answering_flash_two": {
+    "speaker": "",
+    "text": "A second answering flash answers from the same impossible distance.",
+    "next": "answering_flash_three"
+  },
+  "answering_flash_three": {
+    "speaker": "",
+    "text": "A third answering flash burns white at the edge of the water.",
+    "next": "darkness"
+  },
+  "darkness": {
+    "speaker": "",
+    "text": "Then darkness.",
     "next": null
   }
 }
