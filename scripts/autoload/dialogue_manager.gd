@@ -4,6 +4,7 @@ extends Node
 ## Autoloaded as `DialogueManager`. A graph is a dictionary of node id -> node.
 ## Each node:
 ##   { "speaker": String, "text": String,
+##     "audio": String,                           # optional res://-relative audio path
 ##     "next": String|null,                     # linear node; null ends the graph
 ##     "choices": [ {"text": String, "next": String, "set_flag": {..}} ],
 ##     "set_flag": { "flag_name": value } }      # applied when the node is entered
@@ -17,6 +18,13 @@ signal dialogue_finished
 var _graph: Dictionary = {}
 var _current_id: String = ""
 var is_active: bool = false
+var _voice_player: AudioStreamPlayer
+
+
+func _ready() -> void:
+	_voice_player = AudioStreamPlayer.new()
+	_voice_player.name = "DialogueVoice"
+	add_child(_voice_player)
 
 
 func start(path: String, start_id: String = "start") -> bool:
@@ -69,11 +77,28 @@ func _goto(id: String) -> void:
 	_current_id = id
 	var node: Dictionary = _graph[id]
 	_apply_flags(node.get("set_flag", {}))
+	_play_node_audio(str(node.get("audio", "")))
 	line_shown.emit(
 		str(node.get("speaker", "")),
 		str(node.get("text", "")),
 		node.get("choices", [])
 	)
+
+
+func _play_node_audio(path: String) -> void:
+	if path.is_empty():
+		return
+	var resource_path := path if path.begins_with("res://") else "res://%s" % path
+	if not ResourceLoader.exists(resource_path):
+		push_error("DialogueManager: audio file not found: %s" % path)
+		return
+	var stream := ResourceLoader.load(resource_path) as AudioStream
+	if stream == null:
+		push_error("DialogueManager: audio is not an AudioStream: %s" % path)
+		return
+	_voice_player.stop()
+	_voice_player.stream = stream
+	_voice_player.play()
 
 
 func _apply_flags(dict: Dictionary) -> void:
