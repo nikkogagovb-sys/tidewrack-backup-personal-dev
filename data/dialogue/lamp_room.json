@@ -1,7 +1,44 @@
 {
-	"start": {
-		"speaker": "",
-		"text": "The lamp room is colder than the stair. The great light stands dead at its center, the lens dark as a drowned eye. (Draft \u2014 lamp-room content is in progress for the public demo.)",
-		"next": null
-	}
+  "trusted_believer": {
+    "speaker": "",
+    "text": "Edith trusted you with the last thing the sea had not taken. Even dark, the great lamp feels like a promise kept for someone.",
+    "next": "great_lamp_choice"
+  },
+  "trusted_skeptic": {
+    "speaker": "",
+    "text": "Edith trusted you, though the dark glass gives nothing back. The great lamp waits above the water, asking for more certainty than you have.",
+    "next": "great_lamp_choice"
+  },
+  "skeptical_believer": {
+    "speaker": "",
+    "text": "The stories brought you here, but Edith never made them easy to believe. The great lamp stands cold beneath the lens, patient as the tide.",
+    "next": "great_lamp_choice"
+  },
+  "uncommitted": {
+    "speaker": "",
+    "text": "The lamp room is colder than the stair. At its center, the great light stands dead, its lens dark as a drowned eye.",
+    "next": "great_lamp_choice"
+  },
+  "great_lamp_choice": {
+    "speaker": "",
+    "text": "The wick is trimmed. Oil waits in the reservoir. Beyond the glass, the fog has swallowed the water whole.",
+    "choices": [
+      {
+        "text": "Light the lamp.",
+        "next": "lamp_lit",
+        "set_flag": {
+          "lamp_relit": true
+        }
+      },
+      {
+        "text": "Step away from the lamp.",
+        "next": null
+      }
+    ]
+  },
+  "lamp_lit": {
+    "speaker": "",
+    "text": "The flame catches low, then gathers. Light turns once through the lens and lays a pale road across the fog.",
+    "next": null
+  }
 }
