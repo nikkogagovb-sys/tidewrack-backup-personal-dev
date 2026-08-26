@@ -12,6 +12,7 @@ var _interactables: Array[Interactable] = []
 var _prompt: Label
 var _nearest: Interactable = null
 var _paused: bool = false
+var _enter_lamp_room_after_dialogue: bool = false
 
 
 func _ready() -> void:
@@ -25,6 +26,7 @@ func _ready() -> void:
 
 	DialogueManager.dialogue_started.connect(func(): _set_movement(false))
 	DialogueManager.dialogue_finished.connect(func(): _set_movement(true))
+	DialogueManager.dialogue_finished.connect(_on_dialogue_finished)
 
 
 func _build_room() -> void:
@@ -77,7 +79,20 @@ func _add_interactable(label: String, prompt: String, start_id: String, pos: Vec
 	item.position = pos
 	add_child(item)
 	item.setup()
+	if start_id == "door":
+		item.interacted.connect(_queue_lamp_room_transition)
 	_interactables.append(item)
+
+
+func _queue_lamp_room_transition(_source: Interactable) -> void:
+	_enter_lamp_room_after_dialogue = true
+
+
+func _on_dialogue_finished() -> void:
+	if not _enter_lamp_room_after_dialogue:
+		return
+	_enter_lamp_room_after_dialogue = false
+	get_tree().change_scene_to_file("res://scenes/lamp_room.tscn")
 
 
 func _build_hud() -> void:
