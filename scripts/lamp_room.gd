@@ -7,6 +7,7 @@ class_name LampRoom
 ## lamp-room dialogue graph.
 
 const LAMP_DIALOGUE := "res://data/dialogue/lamp_room.json"
+const EDITH_VO_PATH := "audio/vo/keeper_lamp_012_take1.wav"
 const INTERACT_RADIUS := 90.0
 const ROOM := Rect2(120, 140, 1040, 460)
 
@@ -16,9 +17,11 @@ var _great_lamp: Interactable
 var _prompt: Label
 var _nearest: Interactable = null
 var _paused: bool = false
+var _edith_voice: AudioStream
 
 
 func _ready() -> void:
+	_preload_edith_voice()
 	_build_room()
 	_build_player()
 	_build_interactables()
@@ -29,6 +32,14 @@ func _ready() -> void:
 
 	DialogueManager.dialogue_started.connect(func(): _set_movement(false))
 	DialogueManager.dialogue_finished.connect(func(): _set_movement(true))
+
+
+func _preload_edith_voice() -> void:
+	var resource_path := "res://%s" % EDITH_VO_PATH
+	if ResourceLoader.exists(resource_path):
+		_edith_voice = ResourceLoader.load(resource_path) as AudioStream
+	else:
+		push_warning("LampRoom: expected voice asset is missing: %s" % EDITH_VO_PATH)
 
 
 func _build_room() -> void:
