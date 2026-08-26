@@ -7,7 +7,7 @@ class_name LampRoom
 ## lamp-room dialogue graph.
 
 const LAMP_DIALOGUE := "res://data/dialogue/lamp_room.json"
-const EDITH_VO_PATH := "audio/vo/keeper_lamp_012_take1.wav"
+const LAMP_VO_PATH = "res://audio/vo/keeper_lamp_012_take1.wav"
 const INTERACT_RADIUS := 90.0
 const ROOM := Rect2(120, 140, 1040, 460)
 
@@ -17,11 +17,11 @@ var _great_lamp: Interactable
 var _prompt: Label
 var _nearest: Interactable = null
 var _paused: bool = false
-var _edith_voice: AudioStream
+var _lamp_voice: AudioStream
 
 
 func _ready() -> void:
-	_preload_edith_voice()
+	_preload_lamp_voice()
 	_build_room()
 	_build_player()
 	_build_interactables()
@@ -34,12 +34,13 @@ func _ready() -> void:
 	DialogueManager.dialogue_finished.connect(func(): _set_movement(true))
 
 
-func _preload_edith_voice() -> void:
-	var resource_path := "res://%s" % EDITH_VO_PATH
-	if ResourceLoader.exists(resource_path):
-		_edith_voice = ResourceLoader.load(resource_path) as AudioStream
-	else:
-		push_warning("LampRoom: expected voice asset is missing: %s" % EDITH_VO_PATH)
+func _preload_lamp_voice() -> void:
+	if not ResourceLoader.exists(LAMP_VO_PATH):
+		push_error("LampRoom: voice asset not found: %s" % LAMP_VO_PATH)
+		return
+	_lamp_voice = ResourceLoader.load(LAMP_VO_PATH) as AudioStream
+	if _lamp_voice == null:
+		push_error("LampRoom: voice asset is not an AudioStream: %s" % LAMP_VO_PATH)
 
 
 func _build_room() -> void:
@@ -90,18 +91,20 @@ func _build_interactables() -> void:
 	_great_lamp.position = Vector2(ROOM.position.x + ROOM.size.x * 0.5, ROOM.position.y + 170)
 	add_child(_great_lamp)
 	_great_lamp.setup()
-	_great_lamp.interacted.connect(_select_lamp_opening)
 	_interactables.append(_great_lamp)
 
 
-func _select_lamp_opening(_source: Interactable) -> void:
+func _resolve_lamp_opening() -> String:
 	var trusted_edith := bool(GameState.get_flag("trusted_edith", false))
 	var believer := bool(GameState.get_flag("believer", false))
 
-	if trusted_edith:
-		_great_lamp.dialogue_start = "trusted_believer" if believer else "trusted_skeptic"
-	else:
-		_great_lamp.dialogue_start = "skeptical_believer" if believer else "uncommitted"
+	if trusted_edith and believer:
+		return "trusted_believer"
+	if trusted_edith and not believer:
+		return "trusted_skeptic"
+	if not trusted_edith and believer:
+		return "skeptical_believer"
+	return "uncommitted"
 
 
 func _build_hud() -> void:
@@ -153,6 +156,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _paused or DialogueManager.is_active:
 		return
 	if event.is_action_pressed("ui_accept") and _nearest != null:
+		if _nearest == _great_lamp:
+			_great_lamp.dialogue_start = _resolve_lamp_opening()
 		_nearest.interact()
 		get_viewport().set_input_as_handled()
 
